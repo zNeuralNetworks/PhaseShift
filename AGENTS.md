@@ -18,6 +18,26 @@
 - `cloudbuild.yaml`: Artifact Registry build/push and Cloud Run deploy.
 - `Dockerfile` + `nginx.conf`: production static build served by nginx on port `8080`.
 
+## Code Review Graph
+
+- This project has a local code-review graph at `.code-review-graph/graph.db`.
+- Prefer the code-review-graph MCP tools before broad file scans when exploring, reviewing, or tracing impact.
+- Use graph tools first for architecture/context questions, change review, dependency tracing, affected-flow analysis, and test/coverage lookup.
+- Fall back to `rg` and direct file reads only when the graph does not answer the question or when exact source edits are needed.
+- Rebuild the graph after meaningful source changes:
+
+```bash
+uvx code-review-graph build --repo .
+```
+
+- Check graph status with:
+
+```bash
+uvx code-review-graph status --repo .
+```
+
+- Keep `.code-review-graph/` out of git. It is generated local state.
+
 ## Working Rules
 
 - Keep changes small and app-local. This is a mobile-first calming utility, not a marketing site.

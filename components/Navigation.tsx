@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { BatteryLow, Brain, CloudLightning, Map, Moon, Sparkles, Sunrise } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { STATE_SURFACES } from '../data/states';
+import { getStateSurface, STATE_SURFACES } from '../data/states';
+import { STATE_THEME } from '../data/stateTheme';
 import { PhaseRoute } from '../types';
 
 interface NavigationProps {
@@ -20,6 +21,9 @@ const routeIcons = {
 };
 
 const Navigation: React.FC<NavigationProps> = ({ currentRoute, onNavigate }) => {
+  const currentState = getStateSurface(currentRoute);
+  const currentTheme = currentState ? STATE_THEME[currentState.accent] : undefined;
+  const railStyle = currentTheme ? ({ '--ps-state-rgb': currentTheme.rgb } as CSSProperties) : undefined;
   const navItems = [
     ...STATE_SURFACES.map((state) => ({
       route: state.route,
@@ -36,13 +40,13 @@ const Navigation: React.FC<NavigationProps> = ({ currentRoute, onNavigate }) => 
   ];
 
   return (
-    <nav className="sticky top-0 z-50 -mx-6 mb-5 border-b border-stone-800/80 bg-[#0c0a09]/95 px-6 pt-4 pb-3 backdrop-blur-xl">
+    <nav className="ps-state-rail ps-state-scope" style={railStyle}>
       <div className="mb-3 flex items-end justify-between gap-4">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-orange-300/80">PhaseShift</div>
-          <div className="text-xs text-stone-500">Shift state. Start now.</div>
+          <div className="ps-type-brand text-[var(--ps-brand)]">PhaseShift</div>
+          <div className="ps-type-meta">Shift state. Start now.</div>
         </div>
-        <div className="rounded-full border border-stone-800 bg-stone-900/70 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-stone-400">
+        <div className="ps-pill px-3 py-1 ps-type-brand">
           Offline
         </div>
       </div>
@@ -56,21 +60,21 @@ const Navigation: React.FC<NavigationProps> = ({ currentRoute, onNavigate }) => 
               key={item.route}
               type="button"
               onClick={() => onNavigate(item.route)}
-              className={`relative flex min-w-fit items-center gap-2 rounded-full border px-3 py-2 text-sm transition-all ${
+              className={`ps-pill relative flex min-w-fit items-center gap-2 px-3 py-2 text-sm transition-all ${
                 isActive
-                  ? 'border-orange-500/50 text-stone-100'
-                  : 'border-stone-800 bg-stone-900/40 text-stone-500 hover:border-stone-700 hover:text-stone-300'
+                  ? 'ps-pill-accent text-[var(--ps-text-primary)]'
+                  : 'hover:border-[var(--ps-border-strong)] hover:text-[var(--ps-text-secondary)]'
               }`}
             >
               {isActive && (
                 <motion.div
                   layoutId="state-rail-pill"
-                  className="absolute inset-0 rounded-full bg-stone-800"
+                  className="absolute inset-0 rounded-full bg-[var(--ps-state-soft)]"
                   transition={{ type: 'spring', stiffness: 340, damping: 32 }}
                 />
               )}
               <span className="relative z-10 flex items-center gap-2">
-                <Icon size={15} className={isActive ? 'text-orange-300' : 'text-stone-500'} />
+                <Icon size={15} className={isActive ? 'ps-accent-text' : 'ps-muted'} />
                 <span className="whitespace-nowrap">{item.label}</span>
               </span>
             </button>

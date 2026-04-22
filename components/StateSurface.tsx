@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight,
   Check,
@@ -13,64 +13,14 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { NSDR_SCRIPT, PMR_QUICK_STEPS, PRE_SLEEP_STORY, SHUFFLE_WORDS, SOUND_PRESETS } from '../data/protocols';
-import { AccentName, ProtocolKind, StateSurfaceConfig } from '../types';
+import { STATE_THEME } from '../data/stateTheme';
+import { ProtocolKind, StateSurfaceConfig } from '../types';
 
 interface StateSurfaceProps {
   state: StateSurfaceConfig;
 }
 
 type SoundPreset = (typeof SOUND_PRESETS)[keyof typeof SOUND_PRESETS];
-
-const accentClasses: Record<AccentName, { text: string; border: string; bg: string; glow: string; button: string; soft: string }> = {
-  amber: {
-    text: 'text-amber-200',
-    border: 'border-amber-500/40',
-    bg: 'bg-amber-500',
-    glow: 'shadow-[0_0_50px_rgba(245,158,11,0.18)]',
-    button: 'from-amber-700/90 to-stone-800 border-amber-500/40 text-amber-50',
-    soft: 'bg-amber-950/20'
-  },
-  rose: {
-    text: 'text-rose-200',
-    border: 'border-rose-500/40',
-    bg: 'bg-rose-500',
-    glow: 'shadow-[0_0_50px_rgba(244,63,94,0.16)]',
-    button: 'from-rose-800/90 to-stone-800 border-rose-500/40 text-rose-50',
-    soft: 'bg-rose-950/20'
-  },
-  cyan: {
-    text: 'text-cyan-200',
-    border: 'border-cyan-500/40',
-    bg: 'bg-cyan-500',
-    glow: 'shadow-[0_0_50px_rgba(34,211,238,0.14)]',
-    button: 'from-cyan-800/90 to-stone-800 border-cyan-500/40 text-cyan-50',
-    soft: 'bg-cyan-950/20'
-  },
-  emerald: {
-    text: 'text-emerald-200',
-    border: 'border-emerald-500/40',
-    bg: 'bg-emerald-500',
-    glow: 'shadow-[0_0_50px_rgba(16,185,129,0.14)]',
-    button: 'from-emerald-800/90 to-stone-800 border-emerald-500/40 text-emerald-50',
-    soft: 'bg-emerald-950/20'
-  },
-  violet: {
-    text: 'text-violet-200',
-    border: 'border-violet-500/40',
-    bg: 'bg-violet-500',
-    glow: 'shadow-[0_0_50px_rgba(139,92,246,0.16)]',
-    button: 'from-violet-800/90 to-stone-800 border-violet-500/40 text-violet-50',
-    soft: 'bg-violet-950/20'
-  },
-  yellow: {
-    text: 'text-yellow-200',
-    border: 'border-yellow-500/40',
-    bg: 'bg-yellow-500',
-    glow: 'shadow-[0_0_50px_rgba(234,179,8,0.16)]',
-    button: 'from-yellow-700/90 to-stone-800 border-yellow-500/40 text-yellow-50',
-    soft: 'bg-yellow-950/20'
-  }
-};
 
 const protocolSteps: Record<ProtocolKind, string[]> = {
   'activation-breath': ['Stand tall', 'Inhale sharply', 'Exhale cleanly', 'Eyes up'],
@@ -151,20 +101,20 @@ const createSoundscape = (preset: SoundPreset) => {
 
 const SecondaryDetail: React.FC<{ title: string; state: StateSurfaceConfig }> = ({ title, state }) => {
   if (title.includes('Shuffle')) {
-    return (
-      <div className="rounded-2xl border border-stone-800 bg-stone-950/40 p-5 text-center">
-        <p className="mb-4 text-xs uppercase tracking-[0.2em] text-stone-500">Serial imagery</p>
-        <div className="text-4xl font-serif text-orange-100">{SHUFFLE_WORDS[Math.floor(Math.random() * SHUFFLE_WORDS.length)]}</div>
+  return (
+      <div className="ps-card-passive p-5 text-center">
+        <p className="ps-type-brand ps-muted mb-4">Serial imagery</p>
+        <div className="ps-type-hero ps-accent-text">{SHUFFLE_WORDS[Math.floor(Math.random() * SHUFFLE_WORDS.length)]}</div>
       </div>
     );
   }
 
   if (title.includes('PMR')) {
     return (
-      <div className="space-y-2 rounded-2xl border border-stone-800 bg-stone-950/40 p-5">
+      <div className="ps-card-passive space-y-2 p-5">
         {PMR_QUICK_STEPS.map((step, index) => (
-          <div key={step} className="flex gap-3 text-sm text-stone-300">
-            <span className="font-mono text-xs text-stone-500">{index + 1}</span>
+          <div key={step} className="flex gap-3 ps-type-body text-[var(--ps-text-secondary)]">
+            <span className="font-mono text-xs ps-muted">{index + 1}</span>
             <span>{step}</span>
           </div>
         ))}
@@ -174,11 +124,11 @@ const SecondaryDetail: React.FC<{ title: string; state: StateSurfaceConfig }> = 
 
   if (title.includes('Sleep timing')) {
     return (
-      <div className="grid grid-cols-2 gap-3 rounded-2xl border border-stone-800 bg-stone-950/40 p-5">
+      <div className="ps-card-passive grid grid-cols-2 gap-3 p-5">
         {[5, 6].map((cycle) => (
-          <div key={cycle} className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 text-center">
-            <div className="font-serif text-xl text-teal-100">{formatWakeTime(cycle)}</div>
-            <div className="mt-1 text-[10px] uppercase tracking-widest text-stone-500">{cycle === 5 ? '7.5 hours' : '9 hours'}</div>
+          <div key={cycle} className="ps-card-secondary p-4 text-center">
+            <div className="font-serif text-xl ps-accent-text">{formatWakeTime(cycle)}</div>
+            <div className="ps-type-brand ps-muted mt-1">{cycle === 5 ? '7.5 hours' : '9 hours'}</div>
           </div>
         ))}
       </div>
@@ -187,12 +137,12 @@ const SecondaryDetail: React.FC<{ title: string; state: StateSurfaceConfig }> = 
 
   if (title.includes('story')) {
     return (
-      <div className="rounded-2xl border border-stone-800 bg-stone-950/40 p-6">
+      <div className="ps-card-passive p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-serif text-xl text-orange-100">{PRE_SLEEP_STORY.title}</h3>
-          <span className="text-xs text-stone-500">{PRE_SLEEP_STORY.duration}</span>
+          <h3 className="ps-type-title ps-accent-text">{PRE_SLEEP_STORY.title}</h3>
+          <span className="ps-type-meta ps-muted">{PRE_SLEEP_STORY.duration}</span>
         </div>
-        <div className="space-y-4 font-serif text-lg leading-relaxed text-stone-300">
+        <div className="space-y-4 font-serif text-lg leading-relaxed text-[var(--ps-text-secondary)]">
           {PRE_SLEEP_STORY.paragraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
@@ -202,8 +152,8 @@ const SecondaryDetail: React.FC<{ title: string; state: StateSurfaceConfig }> = 
   }
 
   return (
-    <div className={`rounded-2xl border ${accentClasses[state.accent].border} ${accentClasses[state.accent].soft} p-5 text-sm leading-relaxed text-stone-300`}>
-      <div className={`mb-2 text-xs font-semibold uppercase tracking-[0.18em] ${accentClasses[state.accent].text}`}>Action cue</div>
+    <div className="ps-card-passive ps-accent-border p-5 ps-type-body text-[var(--ps-text-secondary)]">
+      <div className="ps-type-brand ps-accent-text mb-2">Action cue</div>
       Start this outside the app. Keep it physical, short, and obvious enough that you can complete it without another decision.
     </div>
   );
@@ -214,7 +164,6 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const soundRef = useRef<ReturnType<typeof createSoundscape> | null>(null);
-  const accent = accentClasses[state.accent];
   const steps = protocolSteps[state.hero.protocol];
   const soundPreset = getSoundPreset(state.hero.protocol);
   const usesSound = state.hero.protocol === 'focus-sound';
@@ -270,19 +219,19 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
   const seconds = String(elapsed % 60).padStart(2, '0');
 
   return (
-    <section className={`relative overflow-hidden rounded-[1.75rem] border ${accent.border} bg-stone-900/70 p-6 ${active ? accent.glow : ''}`}>
-      <div className={`absolute -right-16 -top-20 h-48 w-48 rounded-full ${accent.bg} opacity-10 blur-3xl`} />
+    <section className={`ps-card-primary p-6 ${active ? 'ps-is-active' : ''}`}>
+      <div className="ps-accent-bg absolute -right-16 -top-20 h-48 w-48 rounded-full opacity-[0.075] blur-3xl" />
       <div className="relative z-10">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <div className={`mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] ${accent.text}`}>
+            <div className="ps-type-brand ps-accent-text mb-2 flex items-center gap-2">
               <Wind size={14} />
               {state.hero.duration}
             </div>
-            <h2 className="text-2xl font-serif text-stone-100">{state.hero.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-stone-400">{state.hero.subtitle}</p>
+            <h2 className="ps-type-title">{state.hero.title}</h2>
+            <p className="ps-type-body mt-2">{state.hero.subtitle}</p>
           </div>
-          <div className="rounded-full border border-stone-800 bg-stone-950/60 px-3 py-1 font-mono text-xs text-stone-400">
+          <div className="ps-pill px-3 py-1 font-mono text-xs">
             {minutes}:{seconds}
           </div>
         </div>
@@ -292,12 +241,12 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
             <motion.div
               animate={active ? { scale: [0.82, 1.08, 0.9], opacity: [0.3, 0.95, 0.45] } : { scale: 0.86, opacity: 0.25 }}
               transition={{ duration: 5, repeat: active ? Infinity : 0, ease: 'easeInOut' }}
-              className={`absolute h-full w-full rounded-full border ${accent.border}`}
+              className="ps-accent-border absolute h-full w-full rounded-full border"
             />
             <motion.div
               animate={active ? { scale: [0.72, 1, 0.78] } : { scale: 0.78 }}
               transition={{ duration: 5, repeat: active ? Infinity : 0, ease: 'easeInOut' }}
-              className={`absolute h-40 w-40 rounded-full ${accent.soft}`}
+              className="ps-accent-soft absolute h-40 w-40 rounded-full"
             />
             <AnimatePresence mode="wait">
               <motion.div
@@ -307,8 +256,8 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
                 exit={{ opacity: 0, y: -8 }}
                 className="relative z-10 px-6 text-center"
               >
-                <div className="text-3xl font-serif text-stone-100">{active ? steps[stepIndex] : 'Ready'}</div>
-                <div className="mt-2 text-xs uppercase tracking-[0.18em] text-stone-500">
+                <div className="ps-type-protocol">{active ? steps[stepIndex] : 'Ready'}</div>
+                <div className="ps-type-brand ps-muted mt-2">
                   {active ? state.hero.cta : 'One tap protocol'}
                 </div>
               </motion.div>
@@ -317,19 +266,19 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
         </div>
 
         {state.hero.protocol === 'nsdr' && active && (
-          <div className="mb-5 rounded-2xl border border-stone-800 bg-stone-950/40 p-4">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Self-guided script</div>
-            <p className="text-sm leading-relaxed text-stone-300">{NSDR_SCRIPT[stepIndex % NSDR_SCRIPT.length]}</p>
+          <div className="ps-card-passive mb-5 p-4">
+            <div className="ps-type-brand ps-accent-text mb-2">Self-guided script</div>
+            <p className="ps-type-body text-[var(--ps-text-secondary)]">{NSDR_SCRIPT[stepIndex % NSDR_SCRIPT.length]}</p>
           </div>
         )}
 
         {usesSound && (
-          <div className="mb-5 rounded-2xl border border-stone-800 bg-stone-950/40 p-4">
-            <div className="flex items-center gap-2 text-sm text-stone-300">
-              <Headphones size={16} className={accent.text} />
+          <div className="ps-card-passive mb-5 p-4">
+            <div className="ps-type-section flex items-center gap-2">
+              <Headphones size={16} className="ps-accent-text" />
               <span>{soundPreset.name}</span>
             </div>
-            <p className="mt-1 text-xs leading-relaxed text-stone-500">{soundPreset.description}</p>
+            <p className="ps-type-meta mt-1">{soundPreset.description}</p>
           </div>
         )}
 
@@ -337,7 +286,7 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
           <button
             type="button"
             onClick={toggle}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl border bg-gradient-to-r px-5 py-4 font-medium transition-transform active:scale-[0.98] ${active ? 'border-stone-700 bg-none text-stone-300' : accent.button}`}
+            className={`ps-control-primary flex flex-1 items-center justify-center gap-2 px-5 py-4 font-medium transition-transform active:scale-[0.98] ${active ? 'ps-is-active' : ''}`}
           >
             {active ? <Pause size={18} /> : <Play size={18} />}
             {active ? 'Pause' : state.hero.cta}
@@ -345,7 +294,7 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
           <button
             type="button"
             onClick={reset}
-            className="flex h-14 w-14 items-center justify-center rounded-2xl border border-stone-800 bg-stone-950/50 text-stone-500 transition-colors hover:text-stone-300"
+            className="ps-control-secondary flex h-14 w-14 items-center justify-center transition-colors hover:text-[var(--ps-text-secondary)]"
             aria-label="Reset protocol"
           >
             {active ? <Square size={17} /> : <RotateCcw size={17} />}
@@ -358,24 +307,27 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
 
 const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const accent = accentClasses[state.accent];
   const currentHour = useMemo(() => new Date().getHours(), [state.route]);
+  const theme = STATE_THEME[state.accent];
+  const stateStyle = { '--ps-state-rgb': theme.rgb } as CSSProperties;
 
   return (
     <motion.div
-      className="space-y-5 pb-10"
+      className="ps-state-scope space-y-5 pb-10"
+      style={stateStyle}
+      data-theme-mode={theme.mode}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.22, ease: 'easeOut' }}
     >
       <header className="space-y-3">
-        <div className={`inline-flex rounded-full border ${accent.border} ${accent.soft} px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${accent.text}`}>
+        <div className="ps-pill ps-pill-accent ps-type-brand px-3 py-1">
           {state.eyebrow}
         </div>
         <div>
-          <h1 className="text-4xl font-serif text-stone-100">{state.label}</h1>
-          <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-400">{state.goal}</p>
+          <h1 className="ps-type-hero">{state.label}</h1>
+          <p className="ps-type-body mt-2 max-w-sm">{state.goal}</p>
         </div>
       </header>
 
@@ -383,8 +335,8 @@ const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-stone-300">Secondary actions</h2>
-          <span className="text-xs text-stone-600">Max 3 choices</span>
+          <h2 className="ps-type-section">Secondary actions</h2>
+          <span className="ps-type-meta ps-subtle">Max 3 choices</span>
         </div>
         <div className="grid grid-cols-1 gap-3">
           {state.secondaryActions.map((action) => {
@@ -394,17 +346,15 @@ const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
                 key={action.title}
                 type="button"
                 onClick={() => setSelectedAction(isSelected ? null : action.title)}
-                className={`group flex items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-all ${
-                  isSelected
-                    ? `${accent.border} ${accent.soft}`
-                    : 'border-stone-800 bg-stone-900/35 hover:border-stone-700 hover:bg-stone-900/60'
+                className={`group flex items-center justify-between gap-4 p-4 text-left transition-all ${
+                  isSelected ? 'ps-card-secondary-selected' : 'ps-card-secondary hover:border-[var(--ps-border-strong)]'
                 }`}
               >
                 <span>
-                  <span className="block text-sm font-medium text-stone-200">{action.title}</span>
-                  <span className="mt-1 block text-xs leading-relaxed text-stone-500">{action.description}</span>
+                  <span className="ps-type-section block">{action.title}</span>
+                  <span className="ps-type-meta mt-1 block">{action.description}</span>
                 </span>
-                {isSelected ? <Check size={17} className={accent.text} /> : <ArrowRight size={17} className="text-stone-600 group-hover:text-stone-400" />}
+                {isSelected ? <Check size={17} className="ps-accent-text" /> : <ArrowRight size={17} className="ps-subtle group-hover:text-[var(--ps-text-muted)]" />}
               </button>
             );
           })}
@@ -419,21 +369,21 @@ const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
         )}
       </AnimatePresence>
 
-      <section className="rounded-2xl border border-stone-800 bg-stone-900/30 p-5">
-        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+      <section className="ps-card-passive p-5">
+        <div className="ps-type-brand ps-muted mb-2 flex items-center gap-2">
           <Clock size={14} />
           State note
         </div>
-        <h3 className="text-sm font-medium text-stone-200">{state.note.title}</h3>
-        <p className="mt-1 text-sm leading-relaxed text-stone-500">{state.note.body}</p>
+        <h3 className="ps-type-section">{state.note.title}</h3>
+        <p className="ps-type-body mt-1">{state.note.body}</p>
         {(state.route === 'POST_WAKE' || state.route === 'PRE_SLEEP') && (
-          <p className="mt-3 text-xs text-stone-600">
+          <p className="ps-type-meta ps-subtle mt-3">
             Bio-time: {currentHour < 12 ? 'morning activation window' : currentHour < 18 ? 'daytime stability window' : 'evening wind-down window'}.
           </p>
         )}
       </section>
 
-      <div className="flex items-center justify-center gap-2 pt-2 text-[10px] uppercase tracking-[0.2em] text-stone-700">
+      <div className="ps-type-brand ps-subtle flex items-center justify-center gap-2 pt-2">
         <Sparkles size={12} />
         Fast state shifts, no tracking
       </div>

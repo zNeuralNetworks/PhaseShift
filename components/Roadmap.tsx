@@ -1,16 +1,20 @@
 import React from 'react';
 import {
-  Activity,
-  BatteryCharging,
-  Brain,
   CheckCircle2,
   Circle,
+  Eye,
   Focus,
+  Gauge,
+  Layers,
   Map,
   Moon,
-  Move,
+  PanelTopOpen,
   Palette,
+  Route,
+  ShieldCheck,
+  SlidersHorizontal,
   Sunrise,
+  TestTube2,
   Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -19,71 +23,99 @@ const milestones = [
   {
     status: 'live',
     title: 'State-Based IA',
-    description: 'PhaseShift now uses user states as primary navigation: Low Energy, Overstimulated, Mentally Fatigued, Deep Work, Pre-Sleep, and Post-Wake.',
+    description: 'Six user states are the primary navigation model, keeping the app organized around what the user needs now.',
     icon: Map,
     phase: 'Phase 1'
   },
   {
     status: 'live',
-    title: 'Fast Protocol Surfaces',
-    description: 'Each state opens on one hero action with no dashboard prerequisite, preserving the original low-friction utility model.',
+    title: 'Action-First Surfaces',
+    description: 'Each state opens on one primary protocol and capped secondary actions, with no dashboard prerequisite.',
     icon: Zap,
     phase: 'Phase 1'
   },
   {
     status: 'live',
-    title: 'Pre-Sleep Preserved',
-    description: 'Sleep remains a core function through wind-down breathing, story content, sleep timing, and room audit cues.',
-    icon: Moon,
+    title: 'PhaseShift Visual System',
+    description: 'Shared tokens, state accents, and primary/secondary/passive surfaces create a cohesive calm-performance identity.',
+    icon: Palette,
     phase: 'Phase 1'
   },
   {
     status: 'live',
-    title: 'Recovery Protocols',
-    description: 'NSDR, PMR, shuffle imagery, and generated soundscapes are reframed as state-shift tools instead of a generic relaxation catalog.',
-    icon: Brain,
+    title: 'Static Privacy Model',
+    description: 'The current app remains local, static, and free of accounts, analytics, backend calls, or runtime secrets.',
+    icon: ShieldCheck,
     phase: 'Phase 1'
   },
   {
     status: 'planned',
-    title: 'Protocol Component Split',
-    description: 'Move breathing, soundscape, NSDR, story, and timing logic into dedicated child components and hooks as interaction depth grows.',
-    icon: Activity,
+    title: 'Protocol Engine v1',
+    description: 'Create a shared session model for start, pause, reset, elapsed time, active step, and cleanup behavior.',
+    icon: Gauge,
     phase: 'Phase 2'
   },
   {
     status: 'planned',
     title: 'State-Specific Protocol Variants',
-    description: 'Add richer activation, downshift, focus-entry, recovery, wind-down, and wake-anchor variants while keeping one primary action per state.',
-    icon: BatteryCharging,
+    description: 'Deepen activation, downshift, recovery, focus-entry, wind-down, and wake-anchor protocols without adding a tool catalog.',
+    icon: Layers,
     phase: 'Phase 2'
   },
   {
     status: 'planned',
-    title: 'Deep Work Timer',
-    description: 'Add 25/50 minute work blocks with restrained audio and clear stop/resume behavior, without turning PhaseShift into a productivity suite.',
+    title: 'Deep Work Blocks',
+    description: 'Add practical 25/50 minute focus blocks with restrained sound, one target, and clear stop/resume behavior.',
     icon: Focus,
     phase: 'Phase 2'
   },
   {
-    status: 'concept',
-    title: 'Visual State System',
-    description: 'Refine accents, contrast, and motion so daytime states feel clear while Pre-Sleep remains night-safe.',
-    icon: Palette,
-    phase: 'Phase 3'
+    status: 'planned',
+    title: 'Low-Light Accessibility Pass',
+    description: 'Audit contrast, tap targets, reduced motion, and night-safe readability for low-cognition use.',
+    icon: Eye,
+    phase: 'Phase 2'
   },
   {
-    status: 'concept',
-    title: 'Post-Wake Depth',
-    description: 'Explore local-only wake anchors, caffeine timing guidance, and light exposure prompts without adding tracking or accounts.',
+    status: 'planned',
+    title: 'Pre-Sleep / Post-Wake Depth',
+    description: 'Expand sleep timing, room audit, light exposure, caffeine timing, and wake inertia cues as one bounded state cluster.',
     icon: Sunrise,
+    phase: 'Phase 2'
+  },
+  {
+    status: 'concept',
+    title: 'Local Preferences',
+    description: 'Store optional local-only defaults for wake time, preferred protocols, theme mode, and sound volume.',
+    icon: SlidersHorizontal,
     phase: 'Phase 3'
   },
   {
     status: 'concept',
-    title: 'Motion Hardening',
-    description: 'Tune transitions and active protocol animation for low-cognition use across mobile viewports.',
-    icon: Move,
+    title: 'Quick Switch Actions',
+    description: 'Offer fast pivots like too much, need focus, wind down, and wake up without turning the state rail into a menu maze.',
+    icon: Route,
+    phase: 'Phase 3'
+  },
+  {
+    status: 'concept',
+    title: 'PWA Install + Offline Cache',
+    description: 'Improve repeat access and offline resilience while preserving the no-setup, static privacy posture.',
+    icon: PanelTopOpen,
+    phase: 'Phase 3'
+  },
+  {
+    status: 'concept',
+    title: 'OLED Midnight Mode',
+    description: 'Add a true-black Pre-Sleep variant for users who need lower photon output at night.',
+    icon: Moon,
+    phase: 'Phase 3'
+  },
+  {
+    status: 'concept',
+    title: 'Playwright Smoke Tests',
+    description: 'Cover state routes, hero protocols, secondary expansions, Deep Work audio, and Roadmap rendering.',
+    icon: TestTube2,
     phase: 'Phase 3'
   }
 ];
@@ -103,7 +135,7 @@ const Roadmap: React.FC = () => {
         </div>
         <h1 className="ps-type-hero">PhaseShift Roadmap</h1>
         <p className="ps-type-body mt-2">
-          The roadmap stays in-app, but it now tracks the shift from a sleep utility to a state-based performance tool.
+          A focused path toward faster state shifts, stronger protocols, and a calmer performance system.
         </p>
       </header>
 

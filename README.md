@@ -1,6 +1,6 @@
 # PhaseShift
 
-PhaseShift is an offline, mobile-first React app for fast state shifts across energy, arousal, fatigue, focus, pre-sleep, and post-wake contexts. It is intentionally not a recommendation dashboard, tracker, or generic wellness catalog.
+PhaseShift is an offline, mobile-first React app for fast state shifts across energy, fatigue, focus, pre-sleep, and post-wake contexts. It is intentionally not a recommendation dashboard, tracker, or generic wellness catalog.
 
 Production target:
 

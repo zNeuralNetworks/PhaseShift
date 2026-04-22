@@ -1,7 +1,7 @@
 substitutions:
   _REGION: us-central1
-  _SERVICE: sleep-aid
-  _AR_REPO: sleep-aid
+  _SERVICE: phaseshift
+  _AR_REPO: phaseshift
 
 options:
   logging: CLOUD_LOGGING_ONLY
@@ -17,7 +17,7 @@ steps:
           gcloud artifacts repositories create "${_AR_REPO}" \
             --repository-format=docker \
             --location="${_REGION}" \
-            --description="Sleep Aid container images"
+            --description="PhaseShift container images"
 
   - id: build-image
     name: gcr.io/cloud-builders/docker

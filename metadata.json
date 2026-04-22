@@ -1,5 +1,5 @@
 {
-  "name": "Sleep Aid",
-  "description": "A scientifically-grounded sleep companion leveraging cognitive behavioral therapy principles (CBT-I) to help you rest better. Features intelligent coaching, bedtime stories, and relaxation tools.",
+  "name": "PhaseShift",
+  "description": "A state-based performance utility for fast, actionable shifts across energy, arousal, cognitive fatigue, deep work, pre-sleep, and post-wake states.",
   "requestFramePermissions": []
 }

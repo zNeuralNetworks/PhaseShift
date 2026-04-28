@@ -25,6 +25,7 @@ Core interaction:
 | Styling | Tailwind CSS 4 via `@tailwindcss/vite` |
 | Motion | Framer Motion |
 | Icons | lucide-react |
+| Smoke tests | Playwright |
 | Runtime server | nginx on port `8080` |
 
 The app has no backend, database, auth, analytics, or runtime secrets. Current protocols and content run client-side.
@@ -34,11 +35,14 @@ The app has no backend, database, auth, analytics, or runtime secrets. Current p
 | Path | Purpose |
 | --- | --- |
 | `App.tsx` | App shell, state-route selection, lazy-loaded surfaces |
-| `components/Navigation.tsx` | Horizontal state rail navigation |
-| `components/StateSurface.tsx` | Shared state-page layout and local protocol interactions |
+| `components/Navigation.tsx` | Horizontal state rail navigation and quick switches |
+| `components/StateSurface.tsx` | Shared state-page layout, protocol interactions, and local preferences |
 | `components/Roadmap.tsx` | In-app PhaseShift roadmap |
 | `data/states.ts` | State IA, hero actions, secondary actions, and notes |
-| `data/protocols.ts` | Static protocol content, story, words, scripts, and sound presets |
+| `data/protocols.ts` | Protocol definitions, static content, story, words, scripts, action details, defaults, and sound presets |
+| `hooks/` | Protocol session state and local-only preferences |
+| `public/` | PWA manifest, icon, and service worker |
+| `tests/smoke.spec.ts` | Mobile smoke coverage for core interaction paths |
 | `types.ts` | Shared route, accent, protocol, and state config types |
 | `index.css` | Tailwind import, font theme, global utilities |
 | `cloudbuild.yaml` | Cloud Build pipeline for Artifact Registry and Cloud Run |
@@ -77,9 +81,10 @@ Run before handoff:
 
 ```bash
 npm run check
+npm run test:smoke
 ```
 
-This runs TypeScript validation and a production Vite build.
+`npm run check` runs TypeScript validation and a production Vite build. `npm run test:smoke` builds the app, serves the production bundle with Vite preview, and runs a Playwright mobile smoke test.
 
 For container/deploy changes:
 

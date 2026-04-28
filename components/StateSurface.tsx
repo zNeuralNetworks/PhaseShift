@@ -6,36 +6,33 @@ import {
   Headphones,
   Pause,
   Play,
+  Settings2,
   RotateCcw,
   Sparkles,
   Square,
   Wind
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { NSDR_SCRIPT, PMR_QUICK_STEPS, PRE_SLEEP_STORY, SHUFFLE_WORDS, SOUND_PRESETS } from '../data/protocols';
+import {
+  ACTION_DETAILS,
+  NSDR_SCRIPT,
+  PMR_QUICK_STEPS,
+  PRE_SLEEP_STORY,
+  PROTOCOL_DEFINITIONS,
+  SHUFFLE_WORDS,
+  SOUND_PRESETS
+} from '../data/protocols';
 import { STATE_THEME } from '../data/stateTheme';
-import { ProtocolKind, StateSurfaceConfig } from '../types';
+import { PhaseShiftPreferences, StateSurfaceConfig } from '../types';
+import { useProtocolSession } from '../hooks/useProtocolSession';
 
 interface StateSurfaceProps {
   state: StateSurfaceConfig;
+  preferences: PhaseShiftPreferences;
+  onPreferencesChange: (preferences: Partial<PhaseShiftPreferences>) => void;
 }
 
 type SoundPreset = (typeof SOUND_PRESETS)[keyof typeof SOUND_PRESETS];
-
-const protocolSteps: Record<ProtocolKind, string[]> = {
-  'activation-breath': ['Stand tall', 'Inhale sharply', 'Exhale cleanly', 'Eyes up'],
-  'physiological-sigh': ['Inhale', 'Top-up inhale', 'Long exhale', 'Settle'],
-  nsdr: ['Contact points', 'Right side', 'Left side', 'Breath'],
-  'focus-sound': ['Target', 'Sound on', 'Work block', 'Hold line'],
-  'wind-down': ['Inhale', 'Hold', 'Exhale', 'Dim input'],
-  'wake-anchor': ['Upright', 'Bright light', 'Move', 'First action']
-};
-
-const getSoundPreset = (protocol: ProtocolKind): SoundPreset => {
-  if (protocol === 'focus-sound') return SOUND_PRESETS.focus;
-  if (protocol === 'nsdr') return SOUND_PRESETS.rest;
-  return SOUND_PRESETS.sleep;
-};
 
 const formatWakeTime = (cycles: number) => {
   const wake = new Date();
@@ -43,7 +40,14 @@ const formatWakeTime = (cycles: number) => {
   return wake.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
-const createSoundscape = (preset: SoundPreset) => {
+const addMinutesToTime = (time: string, minutesToAdd: number) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes + minutesToAdd, 0, 0);
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+};
+
+const createSoundscape = (preset: SoundPreset, volume: number) => {
   const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!AudioContextCtor) return null;
 
@@ -65,7 +69,7 @@ const createSoundscape = (preset: SoundPreset) => {
   noiseSource.loop = true;
 
   const noiseGain = ctx.createGain();
-  noiseGain.gain.value = preset.noiseType === 'brown' ? 0.14 : 0.11;
+  noiseGain.gain.value = (preset.noiseType === 'brown' ? 0.14 : 0.11) * volume;
   noiseSource.connect(noiseGain).connect(ctx.destination);
 
   const leftOsc = ctx.createOscillator();
@@ -78,7 +82,7 @@ const createSoundscape = (preset: SoundPreset) => {
   rightOsc.frequency.value = preset.baseFreq + preset.beatFreq;
   leftPan.pan.value = -1;
   rightPan.pan.value = 1;
-  beatGain.gain.value = 0.035;
+  beatGain.gain.value = 0.035 * volume;
 
   leftOsc.connect(leftPan).connect(beatGain);
   rightOsc.connect(rightPan).connect(beatGain);
@@ -99,9 +103,14 @@ const createSoundscape = (preset: SoundPreset) => {
   };
 };
 
-const SecondaryDetail: React.FC<{ title: string; state: StateSurfaceConfig }> = ({ title, state }) => {
+const SecondaryDetail: React.FC<{
+  title: string;
+  state: StateSurfaceConfig;
+  preferences: PhaseShiftPreferences;
+  onPreferencesChange: (preferences: Partial<PhaseShiftPreferences>) => void;
+}> = ({ title, preferences, onPreferencesChange }) => {
   if (title.includes('Shuffle')) {
-  return (
+    return (
       <div className="ps-card-passive p-5 text-center">
         <p className="ps-type-brand ps-muted mb-4">Serial imagery</p>
         <div className="ps-type-hero ps-accent-text">{SHUFFLE_WORDS[Math.floor(Math.random() * SHUFFLE_WORDS.length)]}</div>
@@ -151,6 +160,63 @@ const SecondaryDetail: React.FC<{ title: string; state: StateSurfaceConfig }> = 
     );
   }
 
+  if (title.includes('50-minute') || title.includes('Single target')) {
+    return (
+      <div className="ps-card-passive space-y-4 p-5">
+        <div>
+          <div className="ps-type-brand ps-accent-text mb-2">Deep work block</div>
+          <label className="ps-type-meta ps-muted" htmlFor="focus-target">One target</label>
+          <input
+            id="focus-target"
+            value={preferences.focusTarget}
+            onChange={(event) => onPreferencesChange({ focusTarget: event.target.value })}
+            placeholder="Ship the specific next deliverable"
+            className="ps-input mt-2 w-full"
+            maxLength={80}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[25, 50].map((minutes) => (
+            <button
+              key={minutes}
+              type="button"
+              onClick={() => onPreferencesChange({ focusBlockMinutes: minutes as 25 | 50 })}
+              className={`ps-segment ${preferences.focusBlockMinutes === minutes ? 'ps-pill-accent' : ''}`}
+            >
+              {minutes} min
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (title.includes('Caffeine')) {
+    return (
+      <div className="ps-card-passive p-5">
+        <div className="ps-type-brand ps-accent-text mb-2">Local timing cue</div>
+        <p className="ps-type-body">
+          If your wake anchor is {addMinutesToTime(preferences.wakeTime, 0)}, consider delaying caffeine until around {addMinutesToTime(preferences.wakeTime, 90)} when practical.
+        </p>
+      </div>
+    );
+  }
+
+  const detail = ACTION_DETAILS[title];
+  if (detail) {
+    return (
+      <div className="ps-card-passive space-y-3 p-5">
+        <div className="ps-type-brand ps-accent-text">Action script</div>
+        {detail.map((line, index) => (
+          <div key={line} className="flex gap-3 ps-type-body text-[var(--ps-text-secondary)]">
+            <span className="font-mono text-xs ps-muted">{index + 1}</span>
+            <span>{line}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="ps-card-passive ps-accent-border p-5 ps-type-body text-[var(--ps-text-secondary)]">
       <div className="ps-type-brand ps-accent-text mb-2">Action cue</div>
@@ -159,33 +225,25 @@ const SecondaryDetail: React.FC<{ title: string; state: StateSurfaceConfig }> = 
   );
 };
 
-const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
-  const [active, setActive] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
+const ProtocolHero: React.FC<{ state: StateSurfaceConfig; preferences: PhaseShiftPreferences }> = ({ state, preferences }) => {
   const soundRef = useRef<ReturnType<typeof createSoundscape> | null>(null);
-  const steps = protocolSteps[state.hero.protocol];
-  const soundPreset = getSoundPreset(state.hero.protocol);
-  const usesSound = state.hero.protocol === 'focus-sound';
+  const protocol = PROTOCOL_DEFINITIONS[state.hero.protocol];
+  const durationSeconds = state.hero.protocol === 'focus-sound' ? preferences.focusBlockMinutes * 60 : protocol.durationSeconds;
+  const soundPreset = protocol.soundPreset ? SOUND_PRESETS[protocol.soundPreset] : undefined;
+  const usesSound = Boolean(soundPreset);
+  const session = useProtocolSession({
+    route: state.route,
+    durationSeconds,
+    stepCount: protocol.steps.length,
+    stepIntervalSeconds: protocol.stepIntervalSeconds
+  });
 
   useEffect(() => {
-    setActive(false);
-    setStepIndex(0);
-    setElapsed(0);
-    soundRef.current?.stop();
-    soundRef.current = null;
-  }, [state.route]);
-
-  useEffect(() => {
-    if (!active) return undefined;
-
-    const interval = window.setInterval(() => {
-      setElapsed((value) => value + 1);
-      setStepIndex((value) => (value + 1) % steps.length);
-    }, state.hero.protocol === 'focus-sound' ? 15000 : 5000);
-
-    return () => window.clearInterval(interval);
-  }, [active, state.hero.protocol, steps.length]);
+    if (!session.active) {
+      soundRef.current?.stop();
+      soundRef.current = null;
+    }
+  }, [session.active]);
 
   useEffect(() => {
     return () => {
@@ -194,39 +252,33 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
   }, []);
 
   const toggle = () => {
-    const nextActive = !active;
-    setActive(nextActive);
-
-    if (usesSound) {
-      if (nextActive && !soundRef.current) {
-        soundRef.current = createSoundscape(soundPreset);
-      } else if (!nextActive) {
-        soundRef.current?.stop();
-        soundRef.current = null;
-      }
+    if (usesSound && !session.active && soundPreset && !soundRef.current) {
+      soundRef.current = createSoundscape(soundPreset, preferences.soundVolume);
     }
+    session.toggle();
   };
 
   const reset = () => {
-    setActive(false);
-    setStepIndex(0);
-    setElapsed(0);
+    session.reset();
     soundRef.current?.stop();
     soundRef.current = null;
   };
 
-  const minutes = Math.floor(elapsed / 60);
-  const seconds = String(elapsed % 60).padStart(2, '0');
+  const minutes = Math.floor(session.elapsed / 60);
+  const seconds = String(session.elapsed % 60).padStart(2, '0');
+  const remainingMinutes = Math.floor(Math.max(durationSeconds - session.elapsed, 0) / 60);
+  const remainingSeconds = String(Math.max(durationSeconds - session.elapsed, 0) % 60).padStart(2, '0');
+  const currentStep = session.completed ? protocol.completeLabel : session.active ? protocol.steps[session.stepIndex] : 'Ready';
 
   return (
-    <section className={`ps-card-primary p-6 ${active ? 'ps-is-active' : ''}`}>
+    <section className={`ps-card-primary p-6 ${session.active ? 'ps-is-active' : ''}`}>
       <div className="ps-accent-bg absolute -right-16 -top-20 h-48 w-48 rounded-full opacity-[0.075] blur-3xl" />
       <div className="relative z-10">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <div className="ps-type-brand ps-accent-text mb-2 flex items-center gap-2">
               <Wind size={14} />
-              {state.hero.duration}
+              {state.hero.protocol === 'focus-sound' ? `${preferences.focusBlockMinutes} min` : state.hero.duration}
             </div>
             <h2 className="ps-type-title">{state.hero.title}</h2>
             <p className="ps-type-body mt-2">{state.hero.subtitle}</p>
@@ -236,60 +288,75 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
           </div>
         </div>
 
+        {state.hero.protocol === 'focus-sound' && preferences.focusTarget && (
+          <div className="ps-card-passive mb-5 p-4">
+            <div className="ps-type-brand ps-accent-text mb-1">Target</div>
+            <p className="ps-type-section">{preferences.focusTarget}</p>
+          </div>
+        )}
+
         <div className="mb-6 flex min-h-56 items-center justify-center">
           <div className="relative flex h-52 w-52 items-center justify-center">
             <motion.div
-              animate={active ? { scale: [0.82, 1.08, 0.9], opacity: [0.3, 0.95, 0.45] } : { scale: 0.86, opacity: 0.25 }}
-              transition={{ duration: 5, repeat: active ? Infinity : 0, ease: 'easeInOut' }}
+              animate={session.active ? { scale: [0.82, 1.08, 0.9], opacity: [0.3, 0.95, 0.45] } : { scale: 0.86, opacity: 0.25 }}
+              transition={{ duration: protocol.stepIntervalSeconds, repeat: session.active ? Infinity : 0, ease: 'easeInOut' }}
               className="ps-accent-border absolute h-full w-full rounded-full border"
             />
             <motion.div
-              animate={active ? { scale: [0.72, 1, 0.78] } : { scale: 0.78 }}
-              transition={{ duration: 5, repeat: active ? Infinity : 0, ease: 'easeInOut' }}
+              animate={session.active ? { scale: [0.72, 1, 0.78] } : { scale: 0.78 }}
+              transition={{ duration: protocol.stepIntervalSeconds, repeat: session.active ? Infinity : 0, ease: 'easeInOut' }}
               className="ps-accent-soft absolute h-40 w-40 rounded-full"
+            />
+            <div
+              className="absolute h-full w-full rounded-full"
+              style={{ background: `conic-gradient(rgb(var(--ps-state-rgb) / 0.55) ${session.progress * 360}deg, transparent 0deg)` }}
             />
             <AnimatePresence mode="wait">
               <motion.div
-                key={`${state.route}-${stepIndex}-${active}`}
+                key={`${state.route}-${session.stepIndex}-${session.active}-${session.completed}`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 className="relative z-10 px-6 text-center"
               >
-                <div className="ps-type-protocol">{active ? steps[stepIndex] : 'Ready'}</div>
+                <div className="ps-type-protocol">{currentStep}</div>
                 <div className="ps-type-brand ps-muted mt-2">
-                  {active ? state.hero.cta : 'One tap protocol'}
+                  {session.active ? protocol.activeLabel : session.completed ? 'Session complete' : 'One tap protocol'}
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
         </div>
 
-        {state.hero.protocol === 'nsdr' && active && (
+        {state.hero.protocol === 'nsdr' && session.active && (
           <div className="ps-card-passive mb-5 p-4">
             <div className="ps-type-brand ps-accent-text mb-2">Self-guided script</div>
-            <p className="ps-type-body text-[var(--ps-text-secondary)]">{NSDR_SCRIPT[stepIndex % NSDR_SCRIPT.length]}</p>
+            <p className="ps-type-body text-[var(--ps-text-secondary)]">{NSDR_SCRIPT[session.stepIndex % NSDR_SCRIPT.length]}</p>
           </div>
         )}
 
-        {usesSound && (
+        {usesSound && soundPreset && (
           <div className="ps-card-passive mb-5 p-4">
             <div className="ps-type-section flex items-center gap-2">
               <Headphones size={16} className="ps-accent-text" />
               <span>{soundPreset.name}</span>
             </div>
-            <p className="ps-type-meta mt-1">{soundPreset.description}</p>
+            <p className="ps-type-meta mt-1">{soundPreset.description} Volume follows local preference.</p>
           </div>
         )}
+
+        <div className="mb-4 h-1 overflow-hidden rounded-full bg-[var(--ps-surface-passive)]">
+          <div className="h-full rounded-full bg-[rgb(var(--ps-state-rgb)/0.7)]" style={{ width: `${session.progress * 100}%` }} />
+        </div>
 
         <div className="flex gap-3">
           <button
             type="button"
             onClick={toggle}
-            className={`ps-control-primary flex flex-1 items-center justify-center gap-2 px-5 py-4 font-medium transition-transform active:scale-[0.98] ${active ? 'ps-is-active' : ''}`}
+            className={`ps-control-primary flex flex-1 items-center justify-center gap-2 px-5 py-4 font-medium transition-transform active:scale-[0.98] ${session.active ? 'ps-is-active' : ''}`}
           >
-            {active ? <Pause size={18} /> : <Play size={18} />}
-            {active ? 'Pause' : state.hero.cta}
+            {session.active ? <Pause size={18} /> : <Play size={18} />}
+            {session.active ? 'Pause' : session.completed ? 'Restart' : state.hero.cta}
           </button>
           <button
             type="button"
@@ -297,15 +364,18 @@ const ProtocolHero: React.FC<{ state: StateSurfaceConfig }> = ({ state }) => {
             className="ps-control-secondary flex h-14 w-14 items-center justify-center transition-colors hover:text-[var(--ps-text-secondary)]"
             aria-label="Reset protocol"
           >
-            {active ? <Square size={17} /> : <RotateCcw size={17} />}
+            {session.active ? <Square size={17} /> : <RotateCcw size={17} />}
           </button>
+        </div>
+        <div className="ps-type-meta ps-subtle mt-3 text-center">
+          Remaining {remainingMinutes}:{remainingSeconds}
         </div>
       </div>
     </section>
   );
 };
 
-const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
+const StateSurface: React.FC<StateSurfaceProps> = ({ state, preferences, onPreferencesChange }) => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const currentHour = useMemo(() => new Date().getHours(), [state.route]);
   const theme = STATE_THEME[state.accent];
@@ -331,7 +401,7 @@ const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
         </div>
       </header>
 
-      <ProtocolHero state={state} />
+      <ProtocolHero state={state} preferences={preferences} />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -364,7 +434,12 @@ const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
       <AnimatePresence>
         {selectedAction && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-            <SecondaryDetail title={selectedAction} state={state} />
+            <SecondaryDetail
+              title={selectedAction}
+              state={state}
+              preferences={preferences}
+              onPreferencesChange={onPreferencesChange}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -381,6 +456,43 @@ const StateSurface: React.FC<StateSurfaceProps> = ({ state }) => {
             Bio-time: {currentHour < 12 ? 'morning activation window' : currentHour < 18 ? 'daytime stability window' : 'evening wind-down window'}.
           </p>
         )}
+      </section>
+
+      <section className="ps-card-passive p-5">
+        <div className="ps-type-brand ps-muted mb-4 flex items-center gap-2">
+          <Settings2 size={14} />
+          Local preferences
+        </div>
+        <div className="space-y-4">
+          <label className="block">
+            <span className="ps-type-meta ps-muted">Wake anchor</span>
+            <input
+              type="time"
+              value={preferences.wakeTime}
+              onChange={(event) => onPreferencesChange({ wakeTime: event.target.value })}
+              className="ps-input mt-2 w-full"
+            />
+          </label>
+          <label className="block">
+            <span className="ps-type-meta ps-muted">Sound volume</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={preferences.soundVolume}
+              onChange={(event) => onPreferencesChange({ soundVolume: Number(event.target.value) })}
+              className="mt-2 w-full accent-[rgb(var(--ps-state-rgb))]"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => onPreferencesChange({ theme: preferences.theme === 'midnight' ? 'standard' : 'midnight' })}
+            className={`ps-segment w-full ${preferences.theme === 'midnight' ? 'ps-pill-accent' : ''}`}
+          >
+            OLED midnight mode {preferences.theme === 'midnight' ? 'on' : 'off'}
+          </button>
+        </div>
       </section>
 
       <div className="ps-type-brand ps-subtle flex items-center justify-center gap-2 pt-2">

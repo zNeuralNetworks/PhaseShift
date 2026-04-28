@@ -18,9 +18,30 @@ export type ProtocolKind =
   | 'wind-down'
   | 'wake-anchor';
 
+export type PreferenceTheme = 'standard' | 'midnight';
+
+export type FocusBlockMinutes = 25 | 50;
+
 export interface SecondaryAction {
   title: string;
   description: string;
+}
+
+export interface ProtocolDefinition {
+  steps: string[];
+  durationSeconds: number;
+  stepIntervalSeconds: number;
+  activeLabel: string;
+  completeLabel: string;
+  soundPreset?: 'focus' | 'rest' | 'sleep';
+}
+
+export interface PhaseShiftPreferences {
+  theme: PreferenceTheme;
+  focusBlockMinutes: FocusBlockMinutes;
+  soundVolume: number;
+  wakeTime: string;
+  focusTarget: string;
 }
 
 export interface StateSurfaceConfig {

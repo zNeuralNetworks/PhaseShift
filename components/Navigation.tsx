@@ -20,6 +20,13 @@ const routeIcons = {
   [PhaseRoute.ROADMAP]: Map
 };
 
+const quickSwitches = [
+  { label: 'Too much', route: PhaseRoute.OVERSTIMULATED },
+  { label: 'Need focus', route: PhaseRoute.DEEP_WORK },
+  { label: 'Wind down', route: PhaseRoute.PRE_SLEEP },
+  { label: 'Wake up', route: PhaseRoute.POST_WAKE }
+];
+
 const Navigation: React.FC<NavigationProps> = ({ currentRoute, onNavigate }) => {
   const currentState = getStateSurface(currentRoute);
   const currentTheme = currentState ? STATE_THEME[currentState.accent] : undefined;
@@ -77,6 +84,22 @@ const Navigation: React.FC<NavigationProps> = ({ currentRoute, onNavigate }) => 
                 <Icon size={15} className={isActive ? 'ps-accent-text' : 'ps-muted'} />
                 <span className="whitespace-nowrap">{item.label}</span>
               </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Quick switch actions">
+        {quickSwitches.map((item) => {
+          const isActive = currentRoute === item.route;
+          return (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => onNavigate(item.route)}
+              className={`ps-quick-switch ${isActive ? 'ps-pill-accent' : ''}`}
+            >
+              {item.label}
             </button>
           );
         })}

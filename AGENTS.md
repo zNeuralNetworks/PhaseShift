@@ -18,11 +18,15 @@
 ## Key Files
 
 - `App.tsx`: app shell, active `PhaseRoute`, lazy-loaded state surfaces, roadmap integration.
-- `components/Navigation.tsx`: horizontal top state rail.
-- `components/StateSurface.tsx`: shared action-first state page and local protocol interactions.
+- `components/Navigation.tsx`: horizontal top state rail plus compact quick-switch actions.
+- `components/StateSurface.tsx`: shared action-first state page, protocol UI, secondary details, and local preference controls.
 - `components/Roadmap.tsx`: in-app PhaseShift roadmap/status content.
 - `data/states.ts`: state IA, hero actions, secondary actions, and state notes.
-- `data/protocols.ts`: static protocol content, story excerpt, shuffle words, NSDR script, sound presets.
+- `data/protocols.ts`: protocol definitions, static content, story excerpt, shuffle words, NSDR script, action details, sound presets, and default preferences.
+- `hooks/useProtocolSession.ts`: shared session timing for start, pause, reset, progress, step index, and completion.
+- `hooks/usePhaseShiftPreferences.ts`: local-only preference persistence through `localStorage`.
+- `public/manifest.webmanifest` + `public/sw.js`: install metadata and static offline cache.
+- `tests/smoke.spec.ts`: Playwright mobile smoke coverage for routing, protocol controls, preferences, and roadmap.
 - `index.css`: Tailwind import plus custom global theme, scrollbar, safe-area, animation, and prose utilities.
 - `cloudbuild.yaml`: Artifact Registry build/push and Cloud Run deploy.
 - `Dockerfile` + `nginx.conf`: production static build served by nginx on port `8080`.
@@ -63,6 +67,7 @@ Run before handing off code changes:
 
 ```bash
 npm run check
+npm run test:smoke
 ```
 
 For container/deploy changes, also run:
@@ -78,4 +83,4 @@ Then open `http://localhost:8080`.
 
 - Split `components/StateSurface.tsx` into dedicated protocol components if protocol depth expands.
 - Add an ESLint/Prettier policy before broad refactors.
-- Consider a Playwright smoke test for all seven navigation routes before public launch.
+- Split `components/StateSurface.tsx` further if secondary action depth keeps growing.

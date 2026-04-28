@@ -1,7 +1,8 @@
-import React, { Suspense, lazy, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Navigation from './components/Navigation';
 import { getStateSurface } from './data/states';
+import { usePhaseShiftPreferences } from './hooks/usePhaseShiftPreferences';
 import { PhaseRoute } from './types';
 
 const StateSurface = lazy(() => import('./components/StateSurface'));
@@ -18,7 +19,13 @@ const LoadingFallback = () => (
 
 const App: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<PhaseRoute>(PhaseRoute.LOW_ENERGY);
+  const { preferences, setPreferences } = usePhaseShiftPreferences();
   const currentState = getStateSurface(currentRoute);
+
+  useEffect(() => {
+    if (!('serviceWorker' in navigator) || window.location.hostname === 'localhost') return;
+    navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+  }, []);
 
   return (
     <div className="ps-app-shell">
@@ -29,7 +36,12 @@ const App: React.FC = () => {
             {currentRoute === PhaseRoute.ROADMAP || !currentState ? (
               <Roadmap key={PhaseRoute.ROADMAP} />
             ) : (
-              <StateSurface key={currentRoute} state={currentState} />
+              <StateSurface
+                key={currentRoute}
+                state={currentState}
+                preferences={preferences}
+                onPreferencesChange={setPreferences}
+              />
             )}
           </AnimatePresence>
         </Suspense>

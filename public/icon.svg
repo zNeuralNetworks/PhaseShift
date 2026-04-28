@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="PhaseShift">
+  <rect width="192" height="192" rx="42" fill="#0c0a09"/>
+  <path d="M103 23 47 109h43l-6 60 61-93h-43z" fill="#fdba74"/>
+  <path d="M103 23 47 109h43l-6 60 61-93h-43z" fill="none" stroke="#fff7ed" stroke-opacity=".18" stroke-width="4"/>
+</svg>

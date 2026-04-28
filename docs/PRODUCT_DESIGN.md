@@ -60,6 +60,20 @@ flowchart TD
 - Educational copy stays below actions and remains short.
 - Active sessions should be visually dominant and low-cognition.
 - Sleep remains a core function through Pre-Sleep and Post-Wake, not the whole product identity.
+- Local preferences should reduce repeated setup, not become a profile, score, or onboarding flow.
+- Quick switches should be action pivots, not another full navigation system.
+
+## Implemented Depth
+
+| Area | Current Behavior |
+| --- | --- |
+| Protocol engine | Shared start, pause, reset, progress, step timing, completion, and cleanup model |
+| Protocol variants | State-specific steps, durations, labels, and sound bindings |
+| Deep Work blocks | 25/50 minute local focus blocks with a saved one-line target |
+| Local preferences | Wake time, sound volume, OLED midnight mode, focus target, and block length stored locally |
+| Quick switches | Fast pivots for too much, need focus, wind down, and wake up |
+| Offline/install | Manifest and service worker keep the app installable and resilient without backend calls |
+| Smoke coverage | Playwright verifies core state navigation, protocol controls, preferences, and Roadmap rendering |
 
 ## Content Voice
 

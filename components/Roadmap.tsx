@@ -49,72 +49,72 @@ const milestones = [
     phase: 'Phase 1'
   },
   {
-    status: 'planned',
+    status: 'live',
     title: 'Protocol Engine v1',
-    description: 'Create a shared session model for start, pause, reset, elapsed time, active step, and cleanup behavior.',
+    description: 'Shared session mechanics now handle start, pause, reset, elapsed time, active step, completion, and cleanup behavior.',
     icon: Gauge,
     phase: 'Phase 2'
   },
   {
-    status: 'planned',
+    status: 'live',
     title: 'State-Specific Protocol Variants',
-    description: 'Deepen activation, downshift, recovery, focus-entry, wind-down, and wake-anchor protocols without adding a tool catalog.',
+    description: 'Protocol timing, labels, sound, and action scripts now vary by state without adding a universal tool catalog.',
     icon: Layers,
     phase: 'Phase 2'
   },
   {
-    status: 'planned',
+    status: 'live',
     title: 'Deep Work Blocks',
-    description: 'Add practical 25/50 minute focus blocks with restrained sound, one target, and clear stop/resume behavior.',
+    description: 'Deep Work now supports 25/50 minute blocks, one saved target, restrained sound, and clear stop/resume behavior.',
     icon: Focus,
     phase: 'Phase 2'
   },
   {
-    status: 'planned',
+    status: 'live',
     title: 'Low-Light Accessibility Pass',
-    description: 'Audit contrast, tap targets, reduced motion, and night-safe readability for low-cognition use.',
+    description: 'Contrast, tap targets, reduced-motion handling, and night-safe readability are reinforced across state surfaces.',
     icon: Eye,
     phase: 'Phase 2'
   },
   {
-    status: 'planned',
+    status: 'live',
     title: 'Pre-Sleep / Post-Wake Depth',
-    description: 'Expand sleep timing, room audit, light exposure, caffeine timing, and wake inertia cues as one bounded state cluster.',
+    description: 'Sleep timing, room audit, light exposure, caffeine timing, and wake inertia cues now sit inside the bounded sleep cluster.',
     icon: Sunrise,
     phase: 'Phase 2'
   },
   {
-    status: 'concept',
+    status: 'live',
     title: 'Local Preferences',
-    description: 'Store optional local-only defaults for wake time, preferred protocols, theme mode, and sound volume.',
+    description: 'Wake time, focus block length, focus target, sound volume, and OLED mode now persist locally only.',
     icon: SlidersHorizontal,
     phase: 'Phase 3'
   },
   {
-    status: 'concept',
+    status: 'live',
     title: 'Quick Switch Actions',
-    description: 'Offer fast pivots like too much, need focus, wind down, and wake up without turning the state rail into a menu maze.',
+    description: 'Fast pivots for too much, need focus, wind down, and wake up now sit below the state rail.',
     icon: Route,
     phase: 'Phase 3'
   },
   {
-    status: 'concept',
+    status: 'live',
     title: 'PWA Install + Offline Cache',
-    description: 'Improve repeat access and offline resilience while preserving the no-setup, static privacy posture.',
+    description: 'Install metadata and a static offline cache improve repeat access while preserving the no-backend privacy posture.',
     icon: PanelTopOpen,
     phase: 'Phase 3'
   },
   {
-    status: 'concept',
+    status: 'live',
     title: 'OLED Midnight Mode',
-    description: 'Add a true-black Pre-Sleep variant for users who need lower photon output at night.',
+    description: 'A local OLED midnight mode adds a true-black low-photon variant for night use.',
     icon: Moon,
     phase: 'Phase 3'
   },
   {
-    status: 'concept',
+    status: 'live',
     title: 'Playwright Smoke Tests',
-    description: 'Cover state routes, hero protocols, secondary expansions, Deep Work audio, and Roadmap rendering.',
+    description: 'Smoke coverage now checks state routes, hero controls, secondary expansion, local preferences, and Roadmap rendering.',
     icon: TestTube2,
     phase: 'Phase 3'
   }

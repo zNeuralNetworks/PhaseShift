@@ -14,6 +14,8 @@ Source repository: `https://github.com/zNeuralNetworks/PhaseShift`.
 
 - `PhaseRoute`: six user states plus Roadmap.
 - `ProtocolKind`: primary protocol variants.
+- `ProtocolDefinition`: duration, step timing, active/completion labels, and optional sound binding.
+- `PhaseShiftPreferences`: local-only theme, wake time, focus block length, focus target, and sound volume.
 - `StateSurfaceConfig`: state page content and action contract.
 - `SecondaryAction`: capped secondary action model.
 
@@ -23,10 +25,15 @@ Source repository: `https://github.com/zNeuralNetworks/PhaseShift`.
 | --- | --- |
 | `App.tsx` | Active route state, lazy loading, shell composition |
 | `components/Navigation.tsx` | Scrollable top state rail |
-| `components/StateSurface.tsx` | Hero protocol UI, secondary actions, local timers/audio |
+| `components/StateSurface.tsx` | Hero protocol UI, secondary actions, local preference controls, audio lifecycle |
 | `components/Roadmap.tsx` | Static roadmap timeline |
 | `data/states.ts` | Product IA and state content |
-| `data/protocols.ts` | Protocol scripts, story content, words, sound presets |
+| `data/protocols.ts` | Protocol definitions, scripts, story content, words, sound presets, default preferences |
+| `hooks/useProtocolSession.ts` | Shared session timing, progress, active step, completion, reset |
+| `hooks/usePhaseShiftPreferences.ts` | `localStorage` persistence for local-only defaults |
+| `public/manifest.webmanifest` | PWA install metadata |
+| `public/sw.js` | Static offline shell cache |
+| `tests/smoke.spec.ts` | Playwright mobile smoke test |
 
 ## Protocol Behavior
 
@@ -39,7 +46,19 @@ Source repository: `https://github.com/zNeuralNetworks/PhaseShift`.
 | Wind-down | Timed visual breath loop |
 | Wake anchor | Timed visual step loop |
 
-Audio starts only after explicit user action and stops on pause/reset/unmount.
+Audio starts only after explicit user action and stops on pause/reset/completion/route change/unmount. Session timing is shared by `useProtocolSession`; protocol-specific timing and labels live in `data/protocols.ts`.
+
+## Local Preferences
+
+Preferences are stored only in browser `localStorage` under the PhaseShift namespace. They currently cover:
+
+- OLED midnight mode.
+- Wake anchor time.
+- Focus block length: 25 or 50 minutes.
+- Focus target text.
+- Sound volume.
+
+There is no account sync, telemetry, backend persistence, or recommendation engine.
 
 ## Build Scripts
 
@@ -49,6 +68,7 @@ Audio starts only after explicit user action and stops on pause/reset/unmount.
 | `build` | `vite build` |
 | `typecheck` | `tsc --noEmit` |
 | `check` | `npm run typecheck && npm run build` |
+| `test:smoke` | `playwright test` |
 
 ## Deployment Defaults
 
@@ -68,3 +88,4 @@ Audio starts only after explicit user action and stops on pause/reset/unmount.
 | Navigation crowding | Preserve horizontal state rail; do not return to seven bottom tabs |
 | Dashboard creep | Keep state notes below hero action and secondary actions |
 | Browser API differences | Feature-detect Web Audio and degrade silently |
+| Service worker cache drift | Keep shell cache small and bump cache name when offline assets change materially |
